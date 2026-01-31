@@ -15,21 +15,25 @@ services:
   backend-api:
     build: ./backend-api
     ports:
-      - "8000:8000"
+      - "0.0.0.0:8000:8000"
+    stdin_open: true # Keeps the interactive session open
+    tty: true        # Allocates a virtual terminal
     depends_on:
       - redis
     environment:
       - REDIS_HOST=redis
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "5173:5173"
     volumes:
       - ./frontend:/app
-      - /app/node_modules  # <--- DO NOT REMOVE THIS LINE
-    depends_on:
-      - backend-api
+      - /app/node_modules # Important: Keeps container modules separate from host
     environment:
-      - WDS_SOCKET_PORT=0
+      - CHOKIDAR_USEPOLLING=true
+    stdin_open: true
+    tty: true
 

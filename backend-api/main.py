@@ -2,7 +2,8 @@ from fastapi import FastAPI
 import redis
 import json
 import os
-from fastapi import WebSocket
+from fastapi import WebSocket, WebSocketDisconnect
+import asyncio
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -34,8 +35,25 @@ async def place_bet(user_id: str, side: str, price: float, qty: int):
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     pubsub = r.pubsub()
+    # Using 'ignore_subscribe_messages=True' is the standard way to skip setup msgs
     pubsub.subscribe("price_updates")
-
-    for message in pubsub.listen():
-        if message['type'] == 'message':
-            await websocket.send_text(message['data'])
+    
+    try:
+        while True:
+            # Check for messages without the failing 'ignore_subscribe_none' arg
+            message = pubsub.get_message()
+            if message and message['type'] == 'message':
+                # Ensure data is decoded from bytes to string
+                data = message['data']
+                if isinstance(data, bytes):
+                    data = data.decode('utf-8')
+                await websocket.send_text(data)
+            
+            # Vital: prevents the 'Socket closed' loop by yielding control
+            await asyncio.sleep(0.01) 
+    except WebSocketDisconnect:
+        print("Client disconnected")
+    except Exception as e:
+        print(f"WebSocket Error: {e}")
+    finally:
+        pubsub.unsubscribe("price_updates")

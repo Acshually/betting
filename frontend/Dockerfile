@@ -1,19 +1,15 @@
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package files
+# Only copy package files first for better caching
 COPY package*.json ./
-
-# Install EVERYTHING including devDependencies
 RUN npm install
 
-# Copy the rest of the app
+# Copy the source code
 COPY . .
 
-# Force set the path to the node_modules bin
-ENV PATH /app/node_modules/.bin:$PATH
+EXPOSE 5173
 
-EXPOSE 3000
-
-CMD ["npm", "start"]
+# Vite requires the --host flag to accept external traffic
+CMD ["npm", "run", "dev", "--", "--host"]
