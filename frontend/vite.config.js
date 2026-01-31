@@ -3,19 +3,26 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite' // Add this
 
 export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(), // Add this here
-  ],
+  plugins: [react(), tailwindcss()],
   server: {
     host: true,
     port: 5173,
     strictPort: true,
-    watch: {
-      usePolling: true,
+    allowedHosts: true, 
+    proxy: {
+      // Use 'backend-api' to match your docker-compose service name
+      '/ws': {
+        target: 'ws://backend-api:8000', 
+        ws: true,
+        rewriteWsOrigin: true,
+      },
+      '/place_bet': {
+        target: 'http://backend-api:8000',
+        changeOrigin: true,
+      },
     },
     hmr: {
-      clientPort: 5173,
+      clientPort: 443, 
     },
   },
 })

@@ -14,12 +14,14 @@ useEffect(() => {
   let connectInterval;
 
   const connect = () => {
-    socket = new WebSocket('ws://localhost:8000/ws/updates');
+    // This line is the magic fix:
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    // This automatically uses the tunnel URL or localhost depending on where you are
+    socket = new WebSocket(`${protocol}//${window.location.host}/ws/updates`);
 
     socket.onopen = () => {
       console.log("Connected to WebSocket");
       setStatus('live');
-      if (connectInterval) clearInterval(connectInterval);
     };
 
     socket.onmessage = (event) => {
@@ -38,35 +40,25 @@ useEffect(() => {
       }
     };
 
-    socket.onclose = (e) => {
-      console.log("Socket closed. Retrying...", e.reason);
+    socket.onclose = () => {
       setStatus('disconnected');
-      // Try to reconnect every 3 seconds
       connectInterval = setTimeout(connect, 3000);
-    };
-
-    socket.onerror = (err) => {
-      console.error("WebSocket Error:", err);
-      socket.close();
     };
   };
 
   connect();
-
-  return () => {
-    if (socket) socket.close();
-    if (connectInterval) clearTimeout(connectInterval);
-  };
+  return () => { socket?.close(); clearTimeout(connectInterval); };
 }, []);
 
-  const placeOrder = async () => {
-    try {
-      const params = new URLSearchParams(order);
-      await fetch(`http://localhost:8000/place_bet?${params.toString()}`, { method: 'POST' });
-    } catch (err) {
-      console.error("Trade failed", err);
-    }
-  };
+const placeOrder = async () => {
+  try {
+    const params = new URLSearchParams(order);
+    // Use the relative path /place_bet so Vite proxies it to the backend-api service
+    await fetch(`/place_bet?${params.toString()}`, { method: 'POST' });
+  } catch (err) {
+    console.error("Trade failed", err);
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#0b0e11] text-[#eaecef] p-4 font-sans lg:overflow-hidden">

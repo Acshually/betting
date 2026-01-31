@@ -2,7 +2,9 @@ import requests
 import random 
 import time
 
-API_URL = "http://localhost:8000/place_bet"
+# API_URL = "http://localhost:8000/place_bet"
+ONLINE_TUNNEL_URL = "https://instruments-molecules-york-pour.trycloudflare.com" 
+API_URL = f"{ONLINE_TUNNEL_URL}/place_bet"
 
 
 USERS = ["Akash","User_77","Trader_X","Bot_101"]
