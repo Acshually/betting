@@ -3,7 +3,7 @@ import random
 import time
 
 # API_URL = "http://localhost:8000/place_bet"
-ONLINE_TUNNEL_URL = "https://instruments-molecules-york-pour.trycloudflare.com" 
+ONLINE_TUNNEL_URL = "https://viewed-spy-red-earning.trycloudflare.com/" 
 API_URL = f"{ONLINE_TUNNEL_URL}/place_bet"
 
 
@@ -36,3 +36,7 @@ if __name__ == "__main__":
     for _ in range(25):  # Send 25 orders
         send_bet()
         time.sleep(0.2) # 200ms delay between orders
+
+
+# cloudflared tunnel --url http://localhost:5173
+# docker compose up -d
