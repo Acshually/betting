@@ -3,11 +3,11 @@ import random
 import time
 
 # API_URL = "http://localhost:8000/place_bet"
-ONLINE_TUNNEL_URL = "https://viewed-spy-red-earning.trycloudflare.com/" 
+ONLINE_TUNNEL_URL = "http://localhost:5173/" 
 API_URL = f"{ONLINE_TUNNEL_URL}/place_bet"
 
 
-USERS = ["Akash","User_77","Trader_X","Bot_101"]
+USERS = ["Akash","User_77","Trader_X","Bot_101"]    
 
 def send_bet():
     user = random.choice(USERS)
