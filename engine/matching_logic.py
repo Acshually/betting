@@ -16,18 +16,21 @@ class OrderBook:
         self.asks = []
 
     def add_order(self, order):
+        trades = []
         if order.side == "BUY":
-            self._match(order, self.asks)
+            trades = self._match(order, self.asks)
             if order.quantity > 0:
                 self.bids.append(order)
                 self.bids.sort(key=lambda x: (-x.price, x.timestamp))
         else:
-            self._match(order, self.bids)
+            trades = self._match(order, self.bids)
             if order.quantity > 0:
                 self.asks.append(order)
                 self.asks.sort(key=lambda x: (x.price, x.timestamp))
+        return trades
 
     def _match(self, incoming, book_side):
+        trades = []
         while book_side and incoming.quantity > 0:
             best_match = book_side[0]
             
@@ -54,6 +57,13 @@ class OrderBook:
                 
                 print(f"💰 MATCH: {match_qty} shares at ₹{match_price}. Buyer:{buyer_id} Seller:{seller_id}")
                 
+                trades.append({
+                    "price": match_price,
+                    "qty": match_qty,
+                    "time": time.time(),
+                    "side": incoming.side # Use incoming side to color the trade (Aggressor)
+                })
+
                 incoming.quantity -= match_qty
                 best_match.quantity -= match_qty
                 
@@ -61,3 +71,4 @@ class OrderBook:
                     book_side.pop(0)
             else:
                 break
+        return trades
